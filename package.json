@@ -1,0 +1,21 @@
+{
+  "name": "BEdit",
+  "version": "1.0.0",
+  "description": "A simple texteditor",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/BenBeehler/BEdit",
+  "keywords": [
+    "text-editor"
+  ],
+  "author": "Ben Beehler",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^1.8.4"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security"
+  }
+}
