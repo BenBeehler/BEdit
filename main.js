@@ -9,7 +9,12 @@ const path = require('path')
 const url = require('url')
 
 let mainWindow
-const file = "./test.js";
+
+ipcMain.on('req-file', (event, arg) => {
+  console.log(arg)  // prints "ping"
+  mainWindow.webContents.send('send-file', 5);
+})
+
 
 function createWindow () {
   mainWindow = new BrowserWindow(
@@ -29,12 +34,6 @@ function createWindow () {
   })
 }
 
-ipcMain.on('save_file', (event, arg) => {
-  var data = arg;
-
-  writeFile(file, data);
-})
-
 app.on('ready', () => {
   createWindow()
   Menu.setApplicationMenu(null)
@@ -52,10 +51,10 @@ app.on('activate', function () {
   }
 })
 
-function writeFile(file, data) {
+module.exports.writeFile = (file, data) => {
   fs.writeFile(file, data, function(err) {
       if(err) {
           return console.log(err);
       }
-  }); 
+  });
 }

@@ -4,6 +4,12 @@
 const electron = require('electron');
 const ipcRenderer = electron.ipcRenderer;
 
-module.exports.sendAsync = (message) => {
-    ipcRenderer.send('save_file', message);
-}
+var content = undefined;
+
+ipcRenderer.send('req-file', "hi");
+
+ipcRenderer.on('send-file', (event, arg) => {
+  console.log(arg);
+})
+
+//ipcRenderer.send('asynchronous-message', 'ping')

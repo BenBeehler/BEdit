@@ -1,27 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<link href="./assets/prism.css" rel="stylesheet" />
-	<script src="./assets/lib/codemirror.js"></script>
-	<link rel="stylesheet" href="./assets/lib/codemirror.css">
-	<link rel="stylesheet" href="./assets/css/photon.min.css">
-	<script src="./assets/mode/javascript/javascript.js"></script>
+<title>Bedit</title>
+<style type="text/css" media="screen">
+    #editor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
 </head>
 <body>
-	<button onclick="myFunction()">Save Work</button> 
-	<textarea rows=10 cols=40 id="text"></textarea>
 
-	<script>
-		var textArea = document.getElementById('text');
-		var editor = CodeMirror.fromTextArea(textArea);
-		editor.getDoc().setValue('');
-	</script>
-	<script>
-		const renderer = require('./renderer.js');
-		function myFunction() {
-			renderer.sendAsync(editor.getDoc().getValue());
-			alert("It has been saved to './test.js'");
-		}
-	</script>
+<div id="editor"></div>
+
+<script src="assets/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var renderer = require('./renderer.js');
+    var editor = ace.edit("editor");
+
+    editor.setOptions({
+      fontSize: "12pt"
+    });
+
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/javascript");
+</script>
 </body>
 </html>
