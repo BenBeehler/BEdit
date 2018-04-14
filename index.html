@@ -18,8 +18,7 @@
 
 <script src="assets/ace/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
-    var renderer = require('./renderer.js');
-    var editor = ace.edit("editor");
+    const editor = ace.edit("editor");
 
     editor.setOptions({
       fontSize: "12pt"
@@ -27,6 +26,37 @@
 
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/javascript");
+</script>
+
+<script>
+  const $ = require('./assets/jquery-lib.js')
+  const renderer = require('./renderer.js')
+  const ipc = require('electron').ipcRenderer
+
+  renderer.requestFile();
+
+  ipc.on('sendfile', (event, arg) => {
+    var data = arg;
+
+    editor.setValue("" + data);
+  })
+
+  $(window).bind('keydown', function(event) {
+      if (event.ctrlKey || event.metaKey) {
+          switch (String.fromCharCode(event.which).toLowerCase()) {
+          case 'm':
+              event.preventDefault()
+              renderer.openPref()
+              break
+          case 's':
+            event.preventDefault()
+            renderer.saveFile(editor.getValue())
+            break
+          }
+
+      }
+  })
+
 </script>
 </body>
 </html>

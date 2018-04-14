@@ -1,1 +1,5 @@
-function hi() {}
+function hi() {
+    console.log("hi")
+}
+
+yo

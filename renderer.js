@@ -1,15 +1,21 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
-const electron = require('electron');
-const ipcRenderer = electron.ipcRenderer;
+const electron = require('electron')
+const ipcRenderer = electron.ipcRenderer
 
-var content = undefined;
+var content = undefined
 
-ipcRenderer.send('req-file', "hi");
+module.exports.requestFile = () => {
+  ipcRenderer.send('reqfile', './test.js')
+}
 
-ipcRenderer.on('send-file', (event, arg) => {
-  console.log(arg);
-})
+module.exports.openPref = () => {
+  ipcRenderer.send('openpref', '')
+}
+
+module.exports.saveFile = (content) => {
+  ipcRenderer.send('savefile', content)
+}
 
 //ipcRenderer.send('asynchronous-message', 'ping')
