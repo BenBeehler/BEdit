@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head
 <title>Bedit</title>
 <style type="text/css" media="screen">
     #editor {
@@ -9,6 +9,10 @@
         right: 0;
         bottom: 0;
         left: 0;
+    }
+
+    body {
+      /*background-color: black;*/
     }
 </style>
 </head>
@@ -22,10 +26,10 @@
 
     editor.setOptions({
       fontSize: "12pt"
-    });
+    })
 
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/javascript");
+    editor.setTheme("ace/theme/monokai")
+    editor.session.setMode("ace/mode/javascript")
 </script>
 
 <script>
@@ -33,7 +37,53 @@
   const renderer = require('./renderer.js')
   const ipc = require('electron').ipcRenderer
 
-  renderer.requestFile();
+  //renderer.requestFile()
+  //renderer.reqFName()
+
+  ipc.on('sendfname', (event, arg) => {
+    document.title = "Editing " + arg
+  })
+
+  ipc.on('chg_tab', (event, arg) => {
+    editor.session.setTabSize(parseInt(arg))
+  })
+
+  ipc.on('update', (event, arg) => {
+    document.title = "" + arg
+  })
+
+  ipc.on('open', (event, arg) => {
+    //alert(arg)
+    editor.setValue("" + arg)
+  })
+
+  ipc.on('save', (event, arg) => {
+    var data = editor.getValue()
+
+    ipc.send('save', data)
+  })
+
+  ipc.on('chg_lang', (event, arg) => {
+    //alert(arg)
+    editor.session.setMode("ace/mode/" + arg)
+  })
+
+  ipc.on('chg_text', (event, arg) => {
+    editor.setOptions({
+      fontSize: arg + "pt"
+    });
+  })
+
+  ipc.on('chg_theme', (event, arg) => {
+    editor.setTheme("ace/theme/" + arg)
+  })
+
+  ipc.on('save_as', (event, arg) => {
+    var data = editor.getValue()
+
+    ipc.send('save_as', data)
+  })
+
 
   ipc.on('sendfile', (event, arg) => {
     var data = arg;
@@ -56,6 +106,11 @@
 
       }
   })
+
+  editor.session.on('change', function(delta) {
+    ipc.send('update')
+  });
+
 
 </script>
 </body>

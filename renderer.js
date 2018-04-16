@@ -10,6 +10,10 @@ module.exports.requestFile = () => {
   ipcRenderer.send('reqfile', './test.js')
 }
 
+module.exports.reqFName = () => {
+  ipcRenderer.send('reqfname', '')
+}
+
 module.exports.openPref = () => {
   ipcRenderer.send('openpref', '')
 }
