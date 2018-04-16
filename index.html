@@ -41,6 +41,10 @@
     document.title = "Editing " + arg
   })
 
+  ipc.on('plain', (event, arg) => {
+    editor.session.setMode(null)
+  })
+
   ipc.on('chg_tab', (event, arg) => {
     editor.session.setTabSize(parseInt(arg))
   })

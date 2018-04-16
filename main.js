@@ -168,6 +168,7 @@ app.on('ready', () => {
           label: "Language Select",
           click() {
             osp("Setting", "Select Language", { // select options if using 'select' type
+                'plain': 'Plain Text',
                 'ruby': 'Ruby',
                 'python': 'Python',
                 'java': 'Java',
@@ -184,7 +185,12 @@ app.on('ready', () => {
                 'julia': 'Julia'
             }, (r) => {
               language = r
-              mainWindow.webContents.send( 'chg_lang', r )
+
+              if(!(language === 'plain')) {
+                mainWindow.webContents.send( 'chg_lang', r )
+              } else {
+                mainWindow.webContents.send( 'plain' )
+              }
             })
           }
         },
