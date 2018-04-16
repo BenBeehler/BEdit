@@ -11,11 +11,6 @@ const url = require('url')
 
 process.env.NODE_ENV = "production"
 
-ipcMain.on('openpref', (event, arg) => {
-  //createPrefWindow()
-
-})
-
 ipcMain.on('reqfname', (event, arg) => {
   event.sender.send('sendfname', current_file)
 })

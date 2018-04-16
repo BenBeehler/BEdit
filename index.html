@@ -37,9 +37,6 @@
   const renderer = require('./renderer.js')
   const ipc = require('electron').ipcRenderer
 
-  //renderer.requestFile()
-  //renderer.reqFName()
-
   ipc.on('sendfname', (event, arg) => {
     document.title = "Editing " + arg
   })
@@ -94,10 +91,6 @@
   $(window).bind('keydown', function(event) {
       if (event.ctrlKey || event.metaKey) {
           switch (String.fromCharCode(event.which).toLowerCase()) {
-          case 'm':
-              event.preventDefault()
-              renderer.openPref()
-              break
           case 's':
             event.preventDefault()
             renderer.saveFile(editor.getValue())
