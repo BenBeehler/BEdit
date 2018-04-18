@@ -5,14 +5,57 @@ const BrowserWindow = electron.BrowserWindow
 const Menu = electron.Menu
 const ipcMain = electron.ipcMain
 
+const shell = electron.shell
+
 const fs = require('fs');
 const path = require('path')
 const url = require('url')
 
+let mainWindow
+let prefWindow
+let save_as
+let language = "plain"
+let theme = "monkai"
+let current_file = "None"
+let text_size = 12
+let storage = "./storage/settings.json"
+
 process.env.NODE_ENV = "production"
+
+function writeFile(file, data) {
+  fs.writeFile(file, data, function(err) {
+      if(err) {
+          return console.log(err)
+      }
+  })
+}
 
 ipcMain.on('reqfname', (event, arg) => {
   event.sender.send('sendfname', current_file)
+})
+
+ipcMain.on('init', (event, arg) => {
+    var json = getStorage()
+    
+    var theme = json.theme
+    var language = json.language
+    var tabsize = parseInt(json.tabsize)
+    
+    setLanguage(language)
+    setTheme(theme)
+    setTabSize(tabsize)
+    
+	 setTimeout(() => {
+	  if(process.argv.length >= 4) {
+  		var fName = process.argv[3]
+  		/*var fData = fs.readFileSync(fName, "utf8")
+  		
+  		current_file = fName
+  		
+  		event.sender.send('open', fData )*/
+  		openFile(fName)
+	  }
+  }, 100)
 })
 
 ipcMain.on('update', (event, arg) => {
@@ -39,14 +82,6 @@ ipcMain.on('reqfile', (event, arg) => {
 ipcMain.on('savefile', (event, arg) => {
   this.writeFile(current_file, arg)
 })
-
-let mainWindow
-let prefWindow
-let save_as
-let language = "javascript"
-let theme = "monkai"
-let current_file = "None"
-let text_size = 12
 
 /*function createPrefWindow() {
   if(prefWindow == null) {
@@ -86,8 +121,8 @@ function op(title, label, callback) {
 
 function osp(title, label, selectOptions, callback) {
   prompt({
-    title: 'Prompt example',
-    label: 'URL:',
+    title: title,
+    label: label,
     //value: 'http://example.org',
     inputAttrs: { // attrs to be set if using 'input'
         type: 'url'
@@ -104,7 +139,7 @@ function osp(title, label, selectOptions, callback) {
 function createWindow() {
   mainWindow = new BrowserWindow(
     {
-      width: 1920, height: 1080
+      width: 1280, height: 720
     }
   )
 
@@ -137,7 +172,7 @@ app.on('ready', () => {
           click() {
             op("Save As", "File Path:", (r) => {
               save_as = r
-              mainWindow.webContents.send( 'save_as' )
+              mainWindow.webContents.send('save_as')
             })
           }
         },
@@ -146,8 +181,20 @@ app.on('ready', () => {
           click() {
             op("Open", "File Path:", (r) => {
               current_file = r
-              mainWindow.webContents.send( 'open', fs.readFileSync(current_file) )
+              openFile(current_file)
             })
+          }
+        },
+        {
+          label: "New Window",
+          click() {
+            shell.openItem("script.bat")
+          }
+        },
+        {
+          label: 'Win-CLI',
+          click() {
+             shell.openItem('cmd.exe')
           }
         }
       ]
@@ -160,7 +207,7 @@ app.on('ready', () => {
           click() {
             op("Setting", "Text Size:", (r) => {
               text_size = r
-              mainWindow.webContents.send( 'chg_text', r )
+              mainWindow.webContents.send('chg_text', r )
             })
           }
         },
@@ -184,12 +231,19 @@ app.on('ready', () => {
                 'dart': 'Dart',
                 'julia': 'Julia'
             }, (r) => {
-              language = r
-
-              if(!(language === 'plain')) {
-                mainWindow.webContents.send( 'chg_lang', r )
-              } else {
-                mainWindow.webContents.send( 'plain' )
+              if(!(r == 'undefined' || r == null)) { 
+                language = r
+                
+                var json = getStorage()
+                
+                json.language = language
+                setStorage(json)
+  
+                if(!(language === 'plain')) {
+                  mainWindow.webContents.send('chg_lang', r)
+                } else {
+                  mainWindow.webContents.send('plain')
+                }
               }
             })
           }
@@ -220,7 +274,7 @@ app.on('ready', () => {
                 'merbivore': 'Merbivore',
                 'merbivore_soft': 'Merbivore Soft',
                 'mono_industrial': 'Mono Industrial',
-                'monkai': 'Monkai',
+                'monokai': 'Monokai',
                 'pastel_on_dark': 'Pastel Dark',
                 'solarized_dark': 'Solarized Dark',
                 'solized_light': 'Solarized Light',
@@ -236,8 +290,14 @@ app.on('ready', () => {
                 'vibrant_ink': 'Vibrant Ink',
                 'xcode': 'XCode'
             }, (r) => {
-              theme = r
-              mainWindow.webContents.send( 'chg_theme', r )
+              if(!(r == 'undefined' || r == null)) { 
+                theme = r
+                mainWindow.webContents.send('chg_theme', r )
+                var json = getStorage()
+                
+                json.theme = theme
+                setStorage(json)
+              }
             })
           }
         },
@@ -245,7 +305,11 @@ app.on('ready', () => {
           label: "Change Tab Size",
           click() {
             op("Setting", "Change Tab Size", (r) => {
-              mainWindow.webContents.send( 'chg_tab', r )
+              mainWindow.webContents.send('chg_tab', r )
+                var json = getStorage()
+                
+                json.tabsize = r
+                setStorage(json)
             })
           }
         }
@@ -270,8 +334,48 @@ app.on('activate', function () {
   }
 })
 
+function setLanguage(lang) {
+  mainWindow.webContents.send('chg_lang', lang)
+}
+
+function setTheme(theme) {
+  mainWindow.webContents.send('chg_theme', theme)
+}
+
+function setTabSize(size) {
+  mainWindow.webContents.send('chg_tab', size)
+}
+
+function getStorage() {
+    return JSON.parse(fs.readFileSync(storage, "utf8"))
+}
+
+function setStorage(json) {
+    writeFile(storage, JSON.stringify(json))
+}
+
+function ext(filename) {
+    var i = filename.lastIndexOf('.');
+    return (i < 0) ? '' : filename.substr(i);
+}
+
+function openFile(path) {
+  var fData = fs.readFileSync(path, "utf8")
+	current_file = path
+	
+	var ex = ext(current_file)
+	
+	if(ex == 'js') {
+	  setLanguage('javascript')
+	} else if(ex == 'html') {
+	  setLanguage('html') 
+	}
+	
+	mainWindow.webContents.send('open', fData)
+}
+
 module.exports.readFile = (file) => {
-  return fs.readFileSync(file)
+  return fs.readFileSync(file, "utf8")
 }
 
 module.exports.writeFile = (file, data) => {

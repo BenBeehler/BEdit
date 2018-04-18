@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A simple text editor",
   "productName": "BEdit",
-  "main": "main.js",
+  "main": "c:/users/benbe/desktop/projects/bedit/main.js",
   "scripts": {
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",

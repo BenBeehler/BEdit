@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head
+<head>
 <title>Bedit</title>
 <style type="text/css" media="screen">
     #editor {
@@ -29,7 +29,7 @@
     })
 
     editor.setTheme("ace/theme/monokai")
-    editor.session.setMode("ace/mode/javascript")
+    editor.session.setMode(null)
 </script>
 
 <script>
@@ -37,9 +37,11 @@
   const renderer = require('./renderer.js')
   const ipc = require('electron').ipcRenderer
 
-  ipc.on('sendfname', (event, arg) => {
+  ipc.send('init')
+  
+  /*ipc.on('sendfname', (event, arg) => {
     document.title = "Editing " + arg
-  })
+  })*/
 
   ipc.on('plain', (event, arg) => {
     editor.session.setMode(null)
@@ -54,7 +56,6 @@
   })
 
   ipc.on('open', (event, arg) => {
-    //alert(arg)
     editor.setValue("" + arg)
   })
 
